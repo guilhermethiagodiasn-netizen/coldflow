@@ -58,7 +58,7 @@ export default async function DocsLayout({
   return (
     <Layout
       pageMap={filteredPageMap}
-      docsRepositoryBase="https://github.com/shuding/nextra/tree/main/docs"
+      docsRepositoryBase="https://github.com/pypes-dev/coldflow/tree/main/apps/frontend/"
     >
       {children}
     </Layout>

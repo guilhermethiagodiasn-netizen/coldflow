@@ -101,3 +101,67 @@ html[data-theme='dark'],
 html[data-theme='light'] {
   opacity: initial;
 }
+
+/* Override Nextra docs layout to prevent content from scrunching */
+.x\:mx-auto.x\:flex.x\:max-w-\(--nextra-content-width\) {
+  margin-inline: 0 !important;
+}
+
+/* Improve docs page spacing and formatting */
+.nextra-breadcrumb {
+  margin-bottom: 2rem !important;
+}
+
+/* Add spacing between breadcrumb and page title */
+article h1:first-of-type {
+  margin-top: 1.5rem !important;
+}
+
+/* Improve overall article spacing */
+article {
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+}
+
+@media (min-width: 768px) {
+  article {
+    padding-left: 3rem !important;
+    padding-right: 3rem !important;
+  }
+}
+
+/* Add spacing between nav items in sidebar */
+.nextra-sidebar ul li {
+  margin-bottom: 0.25rem;
+}
+
+/* Improve code block spacing */
+article pre {
+  margin-top: 1.5rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+/* Better paragraph spacing */
+article p {
+  margin-top: 1.25rem !important;
+  margin-bottom: 1.25rem !important;
+}
+
+/* List spacing */
+article ul,
+article ol {
+  margin-top: 1.25rem !important;
+  margin-bottom: 1.25rem !important;
+  padding-left: 1.5rem !important;
+}
+
+/* Headings spacing */
+article h2 {
+  margin-top: 2.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+article h3 {
+  margin-top: 2rem !important;
+  margin-bottom: 0.75rem !important;
+}
