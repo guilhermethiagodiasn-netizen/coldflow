@@ -137,19 +137,19 @@ export default function HomePage() {
             </p>
             <ul className="space-y-3 text-muted-foreground">
               <li className="flex items-start">
-                <span className="mr-2">"</span>
+                <span className="mr-2">&quot;</span>
                 <span>RESTful API with comprehensive documentation</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">"</span>
+                <span className="mr-2">&quot;</span>
                 <span>Webhook events for real-time integrations</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">"</span>
+                <span className="mr-2">&quot;</span>
                 <span>Plugin architecture for custom functionality</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">"</span>
+                <span className="mr-2">&quot;</span>
                 <span>Docker deployment for easy self-hosting</span>
               </li>
             </ul>
@@ -167,25 +167,25 @@ export default function HomePage() {
           <div className="space-y-6">
             <h2 className="text-3xl font-bold tracking-tight">Open Source & Community Driven</h2>
             <p className="text-muted-foreground">
-              We believe cold email software shouldn't be a black box. Coldflow is completely open
+              We believe cold email software shouldn&apos;t be a black box. Coldflow is completely open
               source, giving you full control over your outreach infrastructure and the freedom to
               customize everything.
             </p>
             <ul className="space-y-3 text-muted-foreground">
               <li className="flex items-start">
-                <span className="mr-2">"</span>
+                <span className="mr-2">&quot;</span>
                 <span>100% open source code on GitHub</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">"</span>
+                <span className="mr-2">&quot;</span>
                 <span>Active community and regular updates</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">"</span>
+                <span className="mr-2">&quot;</span>
                 <span>Self-host or use our managed service</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">"</span>
+                <span className="mr-2">&quot;</span>
                 <span>Contribute and shape the roadmap</span>
               </li>
             </ul>
