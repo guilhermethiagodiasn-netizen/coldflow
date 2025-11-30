@@ -24,7 +24,7 @@ export async function Footer() {
               <Link href="/docs" className="text-sm text-gray-400 hover:text-white transition-colors">
                 Documentation
               </Link>
-              <Link href="/admin" className="text-sm text-gray-400 hover:text-white transition-colors">
+              <Link href="/auth/signup" className="text-sm text-gray-400 hover:text-white transition-colors">
                 Get Started
               </Link>
               <Link href="https://github.com/pypes-dev/coldflow" target="_blank" rel="noopener noreferrer" className="text-sm text-gray-400 hover:text-white transition-colors">

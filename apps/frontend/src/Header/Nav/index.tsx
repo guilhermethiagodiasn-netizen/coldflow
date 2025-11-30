@@ -30,7 +30,7 @@ export const HeaderNav: React.FC = () => {
           </Link>
         ))}
         <Link
-          href="/admin"
+          href="/auth/signup"
           className="text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors"
         >
           Get Started
@@ -81,7 +81,7 @@ export const HeaderNav: React.FC = () => {
               </Link>
             ))}
             <Link
-              href="/admin"
+              href="/auth/signup"
               className="text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 transition-colors text-center"
               onClick={closeMenu}
             >
