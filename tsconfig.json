@@ -35,10 +35,10 @@
         "./src/*"
       ],
       "@coldflow/db": [
-        "../../libs/db/src"
+        "./libs/db/src"
       ],
       "@coldflow/auth": [
-        "../../libs/auth/src"
+        "./libs/auth/src"
       ],
     }
   },

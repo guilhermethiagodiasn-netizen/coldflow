@@ -9,6 +9,14 @@
 - ai personalization
 - sequencing
 
+# To run locally:
+- download pnpm
+- download docker and cli
+- `pnpm i`
+- `pnpm dev`
+- navigate to `localhost:3000`
+
+
 # MVP features:
 
 ✅ - enter a domain and see SPF / dkim / dmarc records
@@ -18,6 +26,8 @@
 - Create a single-step email sequence with basic personalization ({first_name}).
 - Send the emails (with a strict, safe sending limit).
 - See a basic dashboard showing "sent" and "replied."
+
+
 
 # Move the needle TO-DO list:
 
