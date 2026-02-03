@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Mail, Server } from 'lucide-react'
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google'
+import { GoogleOAuthProvider, GoogleLogin, type CredentialResponse } from '@react-oauth/google'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -30,11 +30,7 @@ interface EmailAccountModalProps {
   onSuccess?: () => void
 }
 
-export function EmailAccountModal({
-  open,
-  onOpenChange,
-  onSuccess,
-}: EmailAccountModalProps) {
+export function EmailAccountModal({ open, onOpenChange, onSuccess }: EmailAccountModalProps) {
   const [selectedProvider, setSelectedProvider] = useState<EmailProvider | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -76,18 +72,23 @@ export function EmailAccountModal({
     onOpenChange(false)
   }
 
-  const handleGmailSuccess = async (credentialResponse: any) => {
+  const handleGmailSuccess = async (credentialResponse: CredentialResponse) => {
     setSubmitting(true)
     setError(null)
 
     try {
-      console.log('credentialResponse', credentialResponse)
+      const credential = credentialResponse?.credential
+      if (!credential) {
+        setError('Failed to authenticate with Google. Please try again.')
+        return
+      }
+
       const response = await fetch('/api/email-accounts/connect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           provider: 'gmail',
-          credential: credentialResponse.credential,
+          credential,
         }),
       })
 
@@ -100,7 +101,7 @@ export function EmailAccountModal({
 
       onSuccess?.()
       handleClose()
-    } catch (err) {
+    } catch {
       setError('An error occurred while connecting Gmail account')
     } finally {
       setSubmitting(false)
@@ -136,7 +137,7 @@ export function EmailAccountModal({
         onSuccess?.()
         handleClose()
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred while connecting Outlook account')
     } finally {
       setSubmitting(false)
@@ -174,14 +175,17 @@ export function EmailAccountModal({
 
       onSuccess?.()
       handleClose()
-    } catch (err) {
+    } catch {
       setError('An error occurred while connecting IMAP account')
     } finally {
       setSubmitting(false)
     }
   }
 
-  const updateImapFormData = (field: keyof typeof imapFormData, value: string | number | boolean) => {
+  const updateImapFormData = (
+    field: keyof typeof imapFormData,
+    value: string | number | boolean,
+  ) => {
     setImapFormData((prev) => ({ ...prev, [field]: value }))
   }
 
@@ -193,9 +197,7 @@ export function EmailAccountModal({
             <>
               <DialogHeader>
                 <DialogTitle>Connect Email Account</DialogTitle>
-                <DialogDescription>
-                  Choose your email provider to get started
-                </DialogDescription>
+                <DialogDescription>Choose your email provider to get started</DialogDescription>
               </DialogHeader>
 
               <div className="grid gap-4 py-4">
@@ -280,7 +282,7 @@ export function EmailAccountModal({
               </div>
 
               <div className="flex flex-col items-center gap-4 py-4">
-                <GoogleOAuthProvider
+                <GoogleLogin
                   onSuccess={handleGmailSuccess}
                   onError={handleGmailError}
                   useOneTap={false}
@@ -298,169 +300,167 @@ export function EmailAccountModal({
               </DialogFooter>
             </>
           ) : selectedProvider === 'outlook' ? (
-          <>
-            <DialogHeader>
-              <DialogTitle>Connect Outlook Account</DialogTitle>
-              <DialogDescription>
-                You'll be redirected to Microsoft to authorize access to your Outlook account
-              </DialogDescription>
-            </DialogHeader>
+            <>
+              <DialogHeader>
+                <DialogTitle>Connect Outlook Account</DialogTitle>
+                <DialogDescription>
+                  You&apos;ll be redirected to Microsoft to authorize access to your Outlook account
+                </DialogDescription>
+              </DialogHeader>
 
-            {error && (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
-              </div>
-            )}
-
-            <div className="flex items-center gap-2 rounded-lg bg-muted p-4">
-              <Mail className="h-5 w-5 text-muted-foreground" />
-              <div className="text-sm text-muted-foreground">
-                Microsoft will ask you to grant permission to read and send emails
-              </div>
-            </div>
-
-            <DialogFooter>
-              <Button variant="outline" onClick={handleBack} disabled={submitting}>
-                Back
-              </Button>
-              <Button onClick={handleOutlookConnect} disabled={submitting}>
-                {submitting ? 'Connecting...' : 'Connect Outlook'}
-              </Button>
-            </DialogFooter>
-          </>
-        ) : (
-          <>
-            <DialogHeader>
-              <DialogTitle>Connect IMAP / SMTP Account</DialogTitle>
-              <DialogDescription>
-                Enter your email server settings to connect
-              </DialogDescription>
-            </DialogHeader>
-
-            {error && (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={handleImapSubmit}>
-              <div className="grid gap-4 py-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Email Address *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="your@email.com"
-                    value={imapFormData.email}
-                    onChange={(e) => updateImapFormData('email', e.target.value)}
-                    required
-                  />
+              {error && (
+                <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+                  {error}
                 </div>
+              )}
 
-                <div className="grid gap-2">
-                  <Label htmlFor="username">Username *</Label>
-                  <Input
-                    id="username"
-                    type="text"
-                    placeholder="Usually your email address"
-                    value={imapFormData.username}
-                    onChange={(e) => updateImapFormData('username', e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="grid gap-2">
-                  <Label htmlFor="password">Password *</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="Your email password"
-                    value={imapFormData.password}
-                    onChange={(e) => updateImapFormData('password', e.target.value)}
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="imapHost">IMAP Host *</Label>
-                    <Input
-                      id="imapHost"
-                      type="text"
-                      placeholder="imap.example.com"
-                      value={imapFormData.imapHost}
-                      onChange={(e) => updateImapFormData('imapHost', e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="imapPort">IMAP Port *</Label>
-                    <Input
-                      id="imapPort"
-                      type="number"
-                      placeholder="993"
-                      value={imapFormData.imapPort}
-                      onChange={(e) => updateImapFormData('imapPort', parseInt(e.target.value))}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="smtpHost">SMTP Host *</Label>
-                    <Input
-                      id="smtpHost"
-                      type="text"
-                      placeholder="smtp.example.com"
-                      value={imapFormData.smtpHost}
-                      onChange={(e) => updateImapFormData('smtpHost', e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="grid gap-2">
-                    <Label htmlFor="smtpPort">SMTP Port *</Label>
-                    <Input
-                      id="smtpPort"
-                      type="number"
-                      placeholder="587"
-                      value={imapFormData.smtpPort}
-                      onChange={(e) => updateImapFormData('smtpPort', parseInt(e.target.value))}
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="useSsl"
-                    checked={imapFormData.useSsl}
-                    onCheckedChange={(checked) => updateImapFormData('useSsl', checked === true)}
-                  />
-                  <Label
-                    htmlFor="useSsl"
-                    className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    Use SSL/TLS (recommended)
-                  </Label>
+              <div className="flex items-center gap-2 rounded-lg bg-muted p-4">
+                <Mail className="h-5 w-5 text-muted-foreground" />
+                <div className="text-sm text-muted-foreground">
+                  Microsoft will ask you to grant permission to read and send emails
                 </div>
               </div>
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={handleBack} disabled={submitting}>
+                <Button variant="outline" onClick={handleBack} disabled={submitting}>
                   Back
                 </Button>
-                <Button type="submit" disabled={submitting}>
-                  {submitting ? 'Connecting...' : 'Connect Account'}
+                <Button onClick={handleOutlookConnect} disabled={submitting}>
+                  {submitting ? 'Connecting...' : 'Connect Outlook'}
                 </Button>
               </DialogFooter>
-            </form>
-          </>
-        )}
-      </DialogContent>
-    </Dialog>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>Connect IMAP / SMTP Account</DialogTitle>
+                <DialogDescription>Enter your email server settings to connect</DialogDescription>
+              </DialogHeader>
+
+              {error && (
+                <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+                  {error}
+                </div>
+              )}
+
+              <form onSubmit={handleImapSubmit}>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="email">Email Address *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="your@email.com"
+                      value={imapFormData.email}
+                      onChange={(e) => updateImapFormData('email', e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="username">Username *</Label>
+                    <Input
+                      id="username"
+                      type="text"
+                      placeholder="Usually your email address"
+                      value={imapFormData.username}
+                      onChange={(e) => updateImapFormData('username', e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <Label htmlFor="password">Password *</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Your email password"
+                      value={imapFormData.password}
+                      onChange={(e) => updateImapFormData('password', e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="imapHost">IMAP Host *</Label>
+                      <Input
+                        id="imapHost"
+                        type="text"
+                        placeholder="imap.example.com"
+                        value={imapFormData.imapHost}
+                        onChange={(e) => updateImapFormData('imapHost', e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="grid gap-2">
+                      <Label htmlFor="imapPort">IMAP Port *</Label>
+                      <Input
+                        id="imapPort"
+                        type="number"
+                        placeholder="993"
+                        value={imapFormData.imapPort}
+                        onChange={(e) => updateImapFormData('imapPort', parseInt(e.target.value, 10))}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="smtpHost">SMTP Host *</Label>
+                      <Input
+                        id="smtpHost"
+                        type="text"
+                        placeholder="smtp.example.com"
+                        value={imapFormData.smtpHost}
+                        onChange={(e) => updateImapFormData('smtpHost', e.target.value)}
+                        required
+                      />
+                    </div>
+
+                    <div className="grid gap-2">
+                      <Label htmlFor="smtpPort">SMTP Port *</Label>
+                      <Input
+                        id="smtpPort"
+                        type="number"
+                        placeholder="587"
+                        value={imapFormData.smtpPort}
+                        onChange={(e) => updateImapFormData('smtpPort', parseInt(e.target.value, 10))}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="useSsl"
+                      checked={imapFormData.useSsl}
+                      onCheckedChange={(checked) => updateImapFormData('useSsl', checked === true)}
+                    />
+                    <Label
+                      htmlFor="useSsl"
+                      className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      Use SSL/TLS (recommended)
+                    </Label>
+                  </div>
+                </div>
+
+                <DialogFooter>
+                  <Button type="button" variant="outline" onClick={handleBack} disabled={submitting}>
+                    Back
+                  </Button>
+                  <Button type="submit" disabled={submitting}>
+                    {submitting ? 'Connecting...' : 'Connect Account'}
+                  </Button>
+                </DialogFooter>
+              </form>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </GoogleOAuthProvider>
   )
 }
