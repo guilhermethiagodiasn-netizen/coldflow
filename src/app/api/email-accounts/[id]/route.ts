@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth, AuthorizationError } from '@/lib/authorization';
-import { getEmailAccountById, deleteEmailAccount } from '@coldflow/db';
+
+import {
+  db,
+  emailQueue,
+  getEmailAccountById,
+  deleteEmailAccount,
+} from '@coldflow/db';
+
 import { eq, and, count } from 'drizzle-orm';
-import { db } from '@coldflow/db';
-import { emailQueue } from '@coldflow/db';
 
 /**
  * DELETE /api/email-accounts/[id]
@@ -11,6 +16,7 @@ import { emailQueue } from '@coldflow/db';
  * Disconnect/delete an email account.
  * Prevents deletion if there are pending emails in the queue.
  */
+
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -38,22 +44,19 @@ export async function DELETE(
       );
     }
 
-    import { eq, and, count } from 'drizzle-orm';
-// NÃO precisa importar sql
+    // Check if there are pending emails for this account
+    const pendingEmails = await db
+      .select({ count: count() })
+      .from(emailQueue)
+      .where(
+        and(
+          eq(emailQueue.emailAccountId, id),
+          eq(emailQueue.status, 'pending')
+        )
+      );
 
-// ...
-
-const pendingEmails = await db
-  .select({ count: count() })
-  .from(emailQueue)
-  .where(
-    and(
-      eq(emailQueue.emailAccountId, id),
-      eq(emailQueue.status, 'pending')
-    )
-  );
-
-const pendingCount = pendingEmails[0]?.count ?? 0;
+    // count() pode vir como string/bigint dependendo do driver
+    const pendingCount = Number(pendingEmails[0]?.count ?? 0);
 
     if (pendingCount > 0) {
       return NextResponse.json(
@@ -101,6 +104,7 @@ const pendingCount = pendingEmails[0]?.count ?? 0;
  *
  * Get a single email account by ID (without sensitive token data)
  */
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
