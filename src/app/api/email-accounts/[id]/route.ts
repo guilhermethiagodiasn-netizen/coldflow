@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAuth, AuthorizationError } from '@/lib/authorization';
-import {
-  getEmailAccountById,
-  deleteEmailAccount,
-} from '@coldflow/db';
-import { sql } from 'drizzle-orm';
+import { getEmailAccountById, deleteEmailAccount } from '@coldflow/db';
+import { eq, and, count } from 'drizzle-orm';
 import { db } from '@coldflow/db';
 import { emailQueue } from '@coldflow/db';
 
@@ -14,7 +11,6 @@ import { emailQueue } from '@coldflow/db';
  * Disconnect/delete an email account.
  * Prevents deletion if there are pending emails in the queue.
  */
-
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -44,11 +40,16 @@ export async function DELETE(
 
     // Check if there are pending emails for this account
     const pendingEmails = await db
-      .select({ count: sql<number>`count(*)::int` })
+      .select({ count: count() })
       .from(emailQueue)
-      .where(sql`${emailQueue.emailAccountId} = ${id} AND ${emailQueue.status} = 'pending'`);
+      .where(
+        and(
+          eq(emailQueue.emailAccountId, id),
+          eq(emailQueue.status, 'pending')
+        )
+      );
 
-    const pendingCount = pendingEmails[0]?.count || 0;
+    const pendingCount = pendingEmails[0]?.count ?? 0;
 
     if (pendingCount > 0) {
       return NextResponse.json(
@@ -96,7 +97,6 @@ export async function DELETE(
  *
  * Get a single email account by ID (without sensitive token data)
  */
-
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
