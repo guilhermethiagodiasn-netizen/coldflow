@@ -19,7 +19,7 @@ import {
 const RecipientSchema = z.object({
   email: z.string().email(),
   name: z.string().optional(),
-  variables: z.record(z.string()).optional(),
+  variables: z.record(z.string(), z.string()).optional(),
 });
 
 const CreateCampaignSchema = z.object({
