@@ -38,18 +38,22 @@ export async function DELETE(
       );
     }
 
-    // Check if there are pending emails for this account
-    const pendingEmails = await db
-      .select({ count: count() })
-      .from(emailQueue)
-      .where(
-        and(
-          eq(emailQueue.emailAccountId, id),
-          eq(emailQueue.status, 'pending')
-        )
-      );
+    import { eq, and, count } from 'drizzle-orm';
+// NÃO precisa importar sql
 
-    const pendingCount = pendingEmails[0]?.count ?? 0;
+// ...
+
+const pendingEmails = await db
+  .select({ count: count() })
+  .from(emailQueue)
+  .where(
+    and(
+      eq(emailQueue.emailAccountId, id),
+      eq(emailQueue.status, 'pending')
+    )
+  );
+
+const pendingCount = pendingEmails[0]?.count ?? 0;
 
     if (pendingCount > 0) {
       return NextResponse.json(
